@@ -12,8 +12,8 @@ import {
   KeyPair,
 } from "@enkryptcom/types";
 import Storage from "@enkryptcom/storage";
-import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
-import { hexToBuffer, encrypt, decrypt } from "@enkryptcom/utils";
+import { generateMnemonic } from "bip39";
+import { encrypt, decrypt } from "@enkryptcom/utils";
 import PolkadotSigner from "@enkryptcom/signer-polkadot";
 import EthereumSigner from "@enkryptcom/signer-ethereum";
 import BitcoinSigner from "@enkryptcom/signer-bitcoin";
@@ -62,9 +62,9 @@ class KeyRing {
       Errors.KeyringErrors.MnemonicExists
     );
     assert(password, Errors.KeyringErrors.NoPassword);
-    const entropy = hexToBuffer(mnemonicToEntropy(mnemonic));
-    const encrypted = await encrypt(entropy, password);
-    await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
+    // const entropy = hexToBuffer(mnemonicToEntropy(mnemonic));
+    // const encrypted = await encrypt(entropy, password);
+    await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, mnemonic.split(" "));
   }
 
   async isInitialized(): Promise<boolean> {
@@ -94,8 +94,9 @@ class KeyRing {
       configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
     );
     assert(encrypted, Errors.KeyringErrors.NotInitialized);
-    const decryptedEntropy = await decrypt(encrypted, password);
-    return entropyToMnemonic(decryptedEntropy);
+    console.log(password)
+    // const decryptedEntropy = await decrypt(encrypted, password);
+    return encrypted.join(" ");
   }
 
   async unlockMnemonic(password: string): Promise<void> {
