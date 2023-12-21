@@ -6,11 +6,7 @@
     </p>
 
     <div class="pick-password__form">
-      <password-input
-        @keyup.enter="nextAction()"
-        @update:strength-and-password="passwordUpdated"
-      />
-      <base-button title="Next" :disabled="isDisabled" @click="nextAction" />
+      <base-button title="Tide" @click="tideClick" />
     </div>
 
     <p class="pick-password__label">
@@ -20,32 +16,40 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+/* eslint-disable */
 import BaseButton from "@action/components/base-button/index.vue";
-import PasswordInput from "@action/components/password-input/index.vue";
 import { useRouter } from "vue-router";
 import { routes } from "./routes";
-import { useOnboardStore } from "./store";
+// import { useOnboardStore } from "./store";
+import { Heimdall, TidePromise } from "heimdall-tide"
 
-const router = useRouter();
-
-const store = useOnboardStore();
-const password = ref("");
-const isDisabled = ref(true);
-
-const nextAction = () => {
-  if (!isDisabled.value) {
-    store.setPassword(password.value);
-    router.push({
-      name: routes.typePassword.name,
-    });
+const config = {
+  // priv wyNoEmz/CeLPo1GOAPTMxm/uK/a9LRnWzKXLgcpKFmI=
+  vendorPublic: "prF0iFt2krLxFPvUgN80kjWvP5V6yaqqS+bRSzCDUGI=",
+  vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
+  homeORKUrl: "https://prod-ork1.azurewebsites.net",
+  enclaveRequest: {
+    getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
+    refreshToken: true, // I want a TideJWT returned
+    customModel: undefined, // I do not want to provide a customModel
   }
 };
 
-const passwordUpdated = (info: { password: string; strength: number }) => {
-  password.value = info.password.trim();
-  isDisabled.value = true;
-  if (info.strength > 1) isDisabled.value = false;
+const router = useRouter();
+const heimdall = new Heimdall(config);
+const tidePromise = new TidePromise(); 
+const tideButtonAction = async (promise: TidePromise) => heimdall.GetCompleted(promise);
+
+const tideClick = async () => {
+  tideButtonAction(tidePromise)
+  tidePromise.promise.then((res: any) => {
+    if (res.responseType == "completed") {
+      console.log(res.TideJWT)
+      router.push({
+        name: routes.recoveryPhrase.name,
+      });
+    }
+  })
 };
 </script>
 

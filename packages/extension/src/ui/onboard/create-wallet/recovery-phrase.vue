@@ -44,7 +44,7 @@ import { useOnboardStore } from "./store";
 const router = useRouter();
 const store = useOnboardStore();
 
-const password = store.password;
+// const password = store.password;
 const mnemonic = ref("");
 
 const nextAction = () => {
@@ -56,14 +56,14 @@ const nextAction = () => {
 
 onMounted(() => {
   createMnemonic();
-  checkForPassword();
+  // checkForPassword();
 });
 
-const checkForPassword = () => {
-  if (!password) {
-    router.push({ path: routes.pickPassword.path });
-  }
-};
+// const checkForPassword = () => {
+//   if (!password) {
+//     router.push({ path: routes.pickPassword.path });
+//   }
+// };
 
 const createMnemonic = () => {
   mnemonic.value = generateMnemonic(128);
