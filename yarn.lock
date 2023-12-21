@@ -2499,6 +2499,7 @@ __metadata:
     ethereumjs-util: ^7.1.5
     ethereumjs-wallet: ^1.0.2
     eventemitter3: ^5.0.1
+    heimdall-tide: ^0.0.50-test
     https-browserify: ^1.0.0
     less: ^4.2.0
     less-loader: ^11.1.3
@@ -14855,6 +14856,13 @@ __metadata:
     no-case: ^2.2.0
     upper-case: ^1.1.3
   checksum: fe1cc9a555ec9aabc2de80f4dd961a81c534fc23951694fef34297e59b0dd60f26647148731bf0dd3fdb3a1c688089d3cd147d7038db850e25be7c0a5fabb022
+  languageName: node
+  linkType: hard
+
+"heimdall-tide@npm:^0.0.50-test":
+  version: 0.0.50-test
+  resolution: "heimdall-tide@npm:0.0.50-test"
+  checksum: a20d8e1c501b7d2e975cae7eca372c6585ac4beb9f3b7d04b98264bd34457d089f40395412ce02ce35a2db6efdf3cdaec1ee291481604dd61ef154781a5a3967
   languageName: node
   linkType: hard
 

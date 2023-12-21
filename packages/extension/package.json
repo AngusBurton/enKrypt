@@ -51,6 +51,7 @@
     "ethereumjs-util": "^7.1.5",
     "ethereumjs-wallet": "^1.0.2",
     "eventemitter3": "^5.0.1",
+    "heimdall-tide": "^0.0.50-test",
     "lodash": "^4.17.21",
     "memoize-one": "^6.0.0",
     "moment": "^2.29.4",
