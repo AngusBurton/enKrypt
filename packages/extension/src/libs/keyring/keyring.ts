@@ -16,8 +16,8 @@ export class KeyRingBase {
     const browserStorage = new BrowserStorage(InternalStorageNamespace.keyring);
     this.#keyring = new KeyRing(browserStorage);
   }
-  init(mnemonic: string, password: string): Promise<void> {
-    return this.#keyring.init(password, { mnemonic });
+  init(jwt: string, mnemonic: string): Promise<void> {
+    return this.#keyring.init(jwt, { mnemonic });
   }
   async reset(): Promise<void> {
     const resetPromises = Object.values(InternalStorageNamespace).map((name) =>

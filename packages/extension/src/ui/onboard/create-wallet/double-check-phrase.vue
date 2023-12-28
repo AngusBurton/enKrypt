@@ -20,14 +20,14 @@ import CheckPhrase from "@action/components/check-phrase/index.vue";
 import { routes } from "./routes";
 import { useOnboardStore } from "./store";
 import { useRouter } from "vue-router";
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { chunk, shuffle, sample } from "lodash";
 import initializeWallet from "@/libs/utils/initialize-wallet";
 
 const router = useRouter();
 const store = useOnboardStore();
 const phrase = store.mnemonic;
-const password = store.password;
+const jwt = store.password;
 let phraseArr: string[] = [];
 if (!phrase) {
   router.push({ path: routes.pickPassword.path });
@@ -39,9 +39,10 @@ const chunkedArr = chunk(shuffledArr, 3);
 const phraseItems: { id: number; items: string[]; validIndex: number }[] = [];
 const validSelection = ref<boolean[]>(chunkedArr.map(() => false));
 const isInitializing = ref(false);
-const isDisabled = computed<boolean>(() => {
-  return validSelection.value.includes(false) || isInitializing.value;
-});
+// const isDisabled = computed<boolean>(() => {
+//   return validSelection.value.includes(false) || isInitializing.value;
+// });
+const isDisabled = false;
 
 chunkedArr.forEach((chunk) => {
   const randWord = sample(chunk) || "";
@@ -57,7 +58,7 @@ const updateSelection = (idx: number, val: boolean) => {
 
 const nextAction = () => {
   isInitializing.value = true;
-  initializeWallet(phrase, password).then(() => {
+  initializeWallet(jwt, phrase).then(() => {
     isInitializing.value = false;
     router.push({ name: routes.walletReady.name });
   });

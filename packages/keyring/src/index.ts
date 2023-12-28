@@ -20,6 +20,7 @@ import BitcoinSigner from "@enkryptcom/signer-bitcoin";
 import assert from "assert";
 import configs from "./configs";
 import { pathParser } from "./utils";
+import { Heimdall, TidePromise, FieldData } from "./heimdall.js"
 
 class KeyRing {
   #storage: Storage;
@@ -51,20 +52,38 @@ class KeyRing {
   }
 
   async init(
-    password: string,
+    jwt: string,
     {
       strength = configs.MNEMONIC_STRENGTH,
       mnemonic = generateMnemonic(strength),
     }: { strength?: number; mnemonic?: string } = {}
   ): Promise<void> {
-    assert(
-      !(await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)),
-      Errors.KeyringErrors.MnemonicExists
-    );
-    assert(password, Errors.KeyringErrors.NoPassword);
-    // const entropy = hexToBuffer(mnemonicToEntropy(mnemonic));
-    // const encrypted = await encrypt(entropy, password);
-    await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, mnemonic.split(" "));
+    const config = {
+      vendorPublic: 'prF0iFt2krLxFPvUgN80kjWvP5V6yaqqS+bRSzCDUGI=',
+      vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
+      homeORKUrl: "https://prod-ork1.azurewebsites.net",
+      enclaveRequest: {
+        getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
+        refreshToken: true, // I want a TideJWT returned
+        customModel: undefined, // I do not want to provide a customModel
+      }
+    };
+
+    const heimdall = new Heimdall(config);
+
+    const tidePromise = new TidePromise();
+    const fieldData = new FieldData(["seedphrase"]);
+    fieldData.add(mnemonic, ["seedphrase"]);
+
+    const params = [jwt, fieldData, tidePromise];
+    
+    const tideButtonAction = async (params) => {
+        return heimdall.TESTencryptUserDataTEST(params);
+    }
+    tideButtonAction(params)
+    const encrypted = await tidePromise.promise;
+
+    await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
   }
 
   async isInitialized(): Promise<boolean> {
@@ -89,14 +108,36 @@ class KeyRing {
     return pathIndexes[basePath] + 1;
   }
 
-  async #getMnemonic(password: string): Promise<string> {
+  async #getMnemonic(jwt: string): Promise<string> {
     const encrypted = await this.#storage.get(
       configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
     );
     assert(encrypted, Errors.KeyringErrors.NotInitialized);
-    console.log(password)
-    // const decryptedEntropy = await decrypt(encrypted, password);
-    return encrypted.join(" ");
+
+    const config = {
+      vendorPublic: 'prF0iFt2krLxFPvUgN80kjWvP5V6yaqqS+bRSzCDUGI=',
+      vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
+      homeORKUrl: "https://prod-ork1.azurewebsites.net",
+      enclaveRequest: {
+        getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
+        refreshToken: true, // I want a TideJWT returned
+        customModel: undefined, // I do not want to provide a customModel
+      }
+    };
+    const heimdall = new Heimdall(config);
+    const tidePromise2 = new TidePromise();
+
+    const params = [jwt, encrypted, tidePromise2];
+    
+    const tideButtonAction2 = async (params) => {
+        return heimdall.TESTdecryptUserDataTEST(params);
+    }
+    tideButtonAction2(params)
+    const decrypted = await tidePromise2.promise;
+    const fieldData2 = new FieldData(["seedphrase"]);
+    fieldData2.addManyWithTag(decrypted)
+
+    return decrypted[0].Data;
   }
 
   async unlockMnemonic(password: string): Promise<void> {

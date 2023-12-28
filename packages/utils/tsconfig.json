@@ -14,7 +14,7 @@
     "esModuleInterop": true,
     "declaration": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "src/heimdall.js"],
   "exclude": [
     "node_modules/**/*",
     "_warmup/**/*",

@@ -5,77 +5,62 @@
       class="lock-screen__wrap"
     >
       <logo-big class="lock-screen__logo" />
-      <h4>Unlock with password</h4>
-      <lock-screen-password-input
-        :is-error="isError"
-        :value="password"
-        @update:value="passwordChanged"
-        @keyup.enter="unlockAction"
-      />
-      <base-button
-        title="Unlock"
-        :click="unlockAction"
-        :disabled="isDisabled"
-      />
+      <h4>Unlock with Tide</h4>
+      <base-button title="Tide" @click="unlockAction" orange />
     </div>
 
     <div v-show="isUnlocking" class="lock-screen__unlocking">
       <swap-looking-animation />
     </div>
-
-    <lock-screen-forgot
-      v-show="isForgot"
-      :reset="resetAction"
-      @toggle:forgot="toggleForgot"
-    />
-
-    <lock-screen-timer v-show="isLocked" :close="closeLockedAction" />
-
-    <base-button
-      v-show="!isForgot && !isUnlocking"
-      title="I forgot my password"
-      :click="forgotAction"
-      :no-background="true"
-      class="lock-screen__forgot"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
+/* eslint-disable */
 import { ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import LockScreenPasswordInput from "./components/lock-screen-password-input.vue";
-import LockScreenForgot from "./components/lock-screen-forgot.vue";
-import LockScreenTimer from "./components/lock-screen-timer.vue";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
-import { computed } from "@vue/reactivity";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import BitcoinNetworks from "@/providers/bitcoin/networks";
 import KeyRing from "@/libs/keyring/keyring";
 import { NetworkNames, WalletType } from "@enkryptcom/types";
 import { getAccountsByNetworkName } from "@/libs/utils/accounts";
+import { Heimdall, TidePromise } from "heimdall-tide";
 
 const emit = defineEmits<{
   (e: "update:init"): void;
 }>();
 
-const password = ref(process.env.PREFILL_PASSWORD!);
-const isDisabled = computed(() => {
-  return password.value.length < 5 || isUnlocking.value;
-});
 const isError = ref(false);
 const isForgot = ref(false);
 const isLocked = ref(false);
 const isUnlocking = ref(false);
 
+const config = {
+  vendorPublic: 'prF0iFt2krLxFPvUgN80kjWvP5V6yaqqS+bRSzCDUGI=',
+  vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
+  homeORKUrl: "https://prod-ork1.azurewebsites.net",
+  enclaveRequest: {
+    getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
+    refreshToken: true, // I want a TideJWT returned
+    customModel: undefined, // I do not want to provide a customModel
+  }
+};
+
+const heimdall = new Heimdall(config);
+const tidePromise = new TidePromise(); 
+const tideButtonAction = async (promise: TidePromise) => heimdall.GetCompleted(promise);
+
 const unlockAction = async () => {
   isUnlocking.value = true;
+  tideButtonAction(tidePromise);
+  const values = await tidePromise.promise;
   const unlockStatus = await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.unlock,
-      params: [password.value.trim()],
+      params: [values.TideJWT],
     }),
   });
   if (unlockStatus.error) {
@@ -91,7 +76,7 @@ const unlockAction = async () => {
 
     if (bitcoinAccounts.length == 0) {
       const privateKeyring = new KeyRing();
-      await privateKeyring.unlock(password.value.trim());
+      await privateKeyring.unlock(values.TideJWT);
 
       await privateKeyring.saveNewAccount({
         basePath: BitcoinNetworks.bitcoin.basePath,
@@ -103,26 +88,9 @@ const unlockAction = async () => {
       privateKeyring.lock();
     }
 
-    password.value = "";
     emit("update:init");
     setTimeout(() => (isUnlocking.value = false), 750);
   }
-};
-const forgotAction = () => {
-  toggleForgot();
-};
-const passwordChanged = (text: string) => {
-  password.value = text;
-  isError.value = false;
-};
-const toggleForgot = () => {
-  isForgot.value = !isForgot.value;
-};
-const resetAction = () => {
-  password.value = "";
-};
-const closeLockedAction = () => {
-  isLocked.value = false;
 };
 </script>
 

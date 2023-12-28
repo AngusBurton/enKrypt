@@ -3,10 +3,10 @@ import EthereumNetworks from "@/providers/ethereum/networks";
 import PolkadotNetworks from "@/providers/polkadot/networks";
 import BitcoinNetworks from "@/providers/bitcoin/networks";
 import { WalletType } from "@enkryptcom/types";
-export default async (mnemonic: string, password: string): Promise<void> => {
+export default async (jwt: string, mnemonic: string): Promise<void> => {
   const kr = new KeyRing();
-  await kr.init(mnemonic, password);
-  await kr.unlock(password);
+  await kr.init(jwt, mnemonic);
+  await kr.unlock(jwt);
   await kr.saveNewAccount({
     basePath: EthereumNetworks.ethereum.basePath,
     name: "EVM Account 1",
