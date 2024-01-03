@@ -26,12 +26,12 @@
         @window:close="close"
         @window:back="startAction"
       />
-      <settings-recovery
+      <!-- <settings-recovery
         v-if="isPhrase"
         :mnemonic="mnemonic"
         @window:close="close"
         @window:back="startAction"
-      />
+      /> -->
       <reset-wallet
         v-if="isReset"
         @window:close="close"
@@ -47,7 +47,7 @@ import SettingsStart from "./views/settings-start/index.vue";
 import SettingsGeneral from "./views/settings-general/index.vue";
 import SettingsSupport from "./views/settings-support/index.vue";
 import SettingsAbout from "./views/settings-about/index.vue";
-import SettingsRecovery from "./views/settings-recovery/index.vue";
+// import SettingsRecovery from "./views/settings-recovery/index.vue";
 import ResetWallet from "@action/views/reset-wallet/index.vue";
 
 const isStart = ref(true);

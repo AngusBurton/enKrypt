@@ -15,8 +15,10 @@
 import BaseButton from "@action/components/base-button/index.vue";
 import { useRouter } from "vue-router";
 import { routes } from "./routes";
-import { useOnboardStore } from "./store";
+// import { useOnboardStore } from "./store";
 import { Heimdall, TidePromise } from "heimdall-tide"
+import { generateMnemonic } from "bip39";
+import initializeWallet from "@/libs/utils/initialize-wallet";
 
 const config = {
   vendorPublic: 'prF0iFt2krLxFPvUgN80kjWvP5V6yaqqS+bRSzCDUGI=',
@@ -30,7 +32,6 @@ const config = {
 };
 
 const router = useRouter();
-const store = useOnboardStore();
 const heimdall = new Heimdall(config);
 const tidePromise = new TidePromise(); 
 const tideButtonAction = async (promise: TidePromise) => heimdall.GetCompleted(promise);
@@ -39,13 +40,22 @@ const tideClick = async () => {
   tideButtonAction(tidePromise)
   tidePromise.promise.then((res: any) => {
     if (res.responseType == "completed") {
-      store.setPassword(res.TideJWT);
-      router.push({
-        name: routes.recoveryPhrase.name,
+      const jwt = res.TideJWT;
+      checkForJWT(jwt);
+      initializeWallet(jwt, generateMnemonic(128)).then(() => {
+        router.push({ name: routes.walletReady.name });
       });
     }
   })
 };
+
+const checkForJWT = (jwt: string) => {
+  if (!jwt) {
+    router.push({ path: routes.pickPassword.path });
+  }
+};
+
+
 </script>
 
 <style lang="less">

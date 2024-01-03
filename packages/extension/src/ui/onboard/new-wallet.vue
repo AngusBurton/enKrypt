@@ -14,11 +14,6 @@
 
     <div class="new-wallet__buttons">
       <base-button title="Create a new wallet" :click="createAction" />
-      <base-button
-        title="Restore existing wallet"
-        :no-background="true"
-        :click="restoreAction"
-      />
     </div>
   </div>
 </template>
@@ -26,17 +21,12 @@
 import LogoBig from "@action/icons/common/logo-big.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { routes as cwalletRoutes } from "./create-wallet/routes";
-import { routes as rwalletRoutes } from "./restore-wallet/routes";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const createAction = () => {
   router.push({ name: cwalletRoutes.pickPassword.name });
-};
-
-const restoreAction = () => {
-  router.push({ name: rwalletRoutes.start.name });
 };
 </script>
 
