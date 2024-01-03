@@ -21,6 +21,7 @@ import assert from "assert";
 import configs from "./configs";
 import { pathParser } from "./utils";
 import { Heimdall, TidePromise, FieldData } from "./heimdall.js"
+import jwt_decode from 'jwt-decode';
 
 class KeyRing {
   #storage: Storage;
@@ -81,15 +82,31 @@ class KeyRing {
         return heimdall.TESTencryptUserDataTEST(params);
     }
     tideButtonAction(params)
-    const encrypted = await tidePromise.promise;
+    const encrypted: Uint8Array[] = await tidePromise.promise;
+    const parsedJwt: any = jwt_decode(jwt);
 
-    await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
+    try {
+      await fetch("http://localhost:8080/api/phrases", {
+        method: 'POST',
+        headers:{
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },    
+        body: new URLSearchParams({
+          "uid": parsedJwt.uid,
+          "phrase": Array.from(encrypted).toString()
+        })
+      });
+    } catch (error) {
+      console.log("error fetching tide web server", error)
+    }
+    
+    // await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
   }
 
   async isInitialized(): Promise<boolean> {
-    if (await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC))
-      return true;
-    return false;
+    // if (await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC))
+    //   return true;
+    return true;
   }
 
   #resetTimeout(): void {
@@ -109,11 +126,23 @@ class KeyRing {
   }
 
   async #getMnemonic(jwt: string): Promise<string> {
-    const encrypted = await this.#storage.get(
-      configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
-    );
-    assert(encrypted, Errors.KeyringErrors.NotInitialized);
-
+    // const encryptedOld = await this.#storage.get(
+    //   configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
+    // );
+    // assert(encrypted, Errors.KeyringErrors.NotInitialized);
+    const parsedJwt: any = jwt_decode(jwt);
+    const api = 'http://localhost:8080/api/phrases?uid=' + parsedJwt.uid
+    
+    const response = await fetch(api, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        signal: AbortSignal.timeout(5000)
+    });
+    const res = await response.text();
+    const encrypted = new Array(new Uint8Array(JSON.parse(res)[0].phrase.split(',').map(Number)));
+    console.log(res)
     const config = {
       vendorPublic: 'prF0iFt2krLxFPvUgN80kjWvP5V6yaqqS+bRSzCDUGI=',
       vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
