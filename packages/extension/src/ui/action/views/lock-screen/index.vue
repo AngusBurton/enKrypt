@@ -6,7 +6,7 @@
     >
       <logo-big class="lock-screen__logo" />
       <h4>Unlock with Tide</h4>
-      <base-button title="Tide" @click="unlockAction" orange />
+      <base-button title="Open Tide" @click="unlockAction" orange />
     </div>
 
     <div v-show="isUnlocking" class="lock-screen__unlocking">

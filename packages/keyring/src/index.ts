@@ -86,7 +86,7 @@ class KeyRing {
     const parsedJwt: any = jwt_decode(jwt);
 
     try {
-      await fetch("http://localhost:8080/api/phrases", {
+      await fetch("http://enkrypt-tide.australiaeast.cloudapp.azure.com/api/phrases", {
         method: 'POST',
         headers:{
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -99,13 +99,9 @@ class KeyRing {
     } catch (error) {
       console.log("error fetching tide web server", error)
     }
-    
-    // await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
   }
 
   async isInitialized(): Promise<boolean> {
-    // if (await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC))
-    //   return true;
     return true;
   }
 
@@ -126,12 +122,8 @@ class KeyRing {
   }
 
   async #getMnemonic(jwt: string): Promise<string> {
-    // const encryptedOld = await this.#storage.get(
-    //   configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
-    // );
-    // assert(encrypted, Errors.KeyringErrors.NotInitialized);
     const parsedJwt: any = jwt_decode(jwt);
-    const api = 'http://localhost:8080/api/phrases?uid=' + parsedJwt.uid
+    const api = 'http://enkrypt-tide.australiaeast.cloudapp.azure.com/api/phrases?uid=' + parsedJwt.uid
     
     const response = await fetch(api, {
         method: 'GET',

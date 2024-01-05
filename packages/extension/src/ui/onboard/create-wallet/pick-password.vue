@@ -1,12 +1,12 @@
 <template>
   <div class="pick-password">
-    <h3 class="pick-password__title">Tide</h3>
+    <h3 class="pick-password__title">Secure with Tide</h3>
     <p class="pick-password__description">
       This will be used to unlock your wallet.
     </p>
 
     <div class="pick-password__form">
-      <base-button title="Tide" @click="tideClick" orange />
+      <base-button title="Open Tide" @click="tideClick" orange />
     </div>
   </div>
 </template>

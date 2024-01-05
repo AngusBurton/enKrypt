@@ -13,7 +13,10 @@
     </p>
 
     <div class="new-wallet__buttons">
-      <base-button title="Create a new wallet" :click="createAction" />
+      <base-button
+        title="Create a new wallet with tide"
+        :click="createAction"
+      />
     </div>
   </div>
 </template>
