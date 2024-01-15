@@ -52,3 +52,15 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
    yarn build:chrome
    ```
 3. Add the dist folder to chrome://extensions
+
+## Demo - Information
+
+### Problem
+
+The biggest challenge that (browser) crypto wallets face in this current generation are related to the security and storage of the seed phrase also known as a recovery or security phrase. Currently crypto wallets secure the entire wallet (seed phrase) using a master password which is terrible as if a bad actor can get into your device they can brute force this offline and get access to your crypto. This is also means the phrase is stored on the device, which makes it impossible to login to the same wallet on a different device, without copy pasting the recovery phrase over to the new device which is not very secure or ideal.
+
+### Product
+
+The Tide integration with the Enkyrpt crypto wallet solves both these problems. Firstly, the crypto wallet implements Tide which replaces the master-password for the Tide login flow which is used to unlock the wallet instead. This is great as it's a lot more secure however the phrase still needs to be stored somewhere. Instead of storing the encrypted phrase on a user's device we instead are storing it on a secure web server, which increases security through rate limiting, etc. However it does obviously prompt privacy concerns which is understandble, but the main benefit it provides now is that it allows the user to login through Tide to the same wallet from any device.
+
+
