@@ -61,6 +61,6 @@ The biggest challenge that (browser) crypto wallets face in this current generat
 
 ### Product
 
-The Tide integration with the Enkyrpt crypto wallet solves both these problems. Firstly, the crypto wallet implements Tide which replaces the master-password for the Tide login flow which is used to unlock the wallet instead. This is great as it's a lot more secure however the phrase still needs to be stored somewhere. Instead of storing the encrypted phrase on a user's device we instead are storing it on a secure web server, which increases security through rate limiting, etc. However it does obviously prompt privacy concerns which is understandble, but the main benefit it provides now is that it allows the user to login through Tide to the same wallet from any device.
+The Tide integration with the Enkyrpt crypto wallet solves both these problems. Firstly, the crypto wallet implements Tide which replaces the master-password for the Tide login flow which is used to unlock the wallet instead. This is great as it's a lot more secure however the phrase still needs to be stored somewhere. Instead of storing the encrypted phrase on a user's device we are instead storing it on a secure web server, which increases security through rate limiting, etc, however it does obviously prompt privacy concerns which is understandble. But the main benefit it provides is that it allows the user to login through Tide to the same wallet from any device.
 
 
