@@ -56,7 +56,7 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
 ## Demo - Information
 
 ### Problem with Enkrypt
-The main problem with Enkrypt and all other extension based crypto wallets is the security and storage of the seed phrase also known as a recovery or security phrase. Currently Enkrypt secures the entire wallet (seed phrase) using a master password which is not very ideal as if a bad actor can get into your device they can brute force this offline and get access to your crypto. This is also means the phrase is stored on the device, which makes it impossible to login to Enkrypt on a different device, without copy pasting the recovery phrase over to the new device which is not very secure or ideal.
+The main problem with Enkrypt and many other extension based crypto wallets is the security and storage of the seed phrase also known as a recovery or security phrase. Currently Enkrypt secures the entire wallet (seed phrase) using a master password which is not very ideal as if a bad actor can get into your device they can brute force this offline and get access to your crypto. This is also means the phrase is stored on the device, which makes it impossible to login to Enkrypt on a different device, without copy pasting the recovery phrase over to the new device which is not very secure or ideal.
 
 >So the main problem --> managing and storing the encrypted seed phrase
 
