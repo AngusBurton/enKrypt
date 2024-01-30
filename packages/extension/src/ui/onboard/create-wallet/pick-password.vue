@@ -25,7 +25,6 @@ const config = {
   vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
   homeORKUrl: "https://prod-ork1.azurewebsites.net",
   enclaveRequest: {
-    getUserInfoFirst: true, // 1 step process - we will not supply a customModel halfway through the process
     refreshToken: true, // I want a TideJWT returned
     customModel: undefined, // I do not want to provide a customModel
   }
@@ -35,21 +34,14 @@ var publicKey = ""
 
 const router = useRouter();
 const heimdall = new Heimdall(config);
-const vendorCallback = (_userInfo: { PublicKey: string; }) => {
-    console.log("Vendor callback pk - ", _userInfo.PublicKey);
-    publicKey = _userInfo.PublicKey.slice(0, -1);
-
-    return null;
-}
-
-const tidePromise = new TidePromise(vendorCallback); 
-const tideButtonAction = async (promise: TidePromise) => heimdall.GetCompleted(promise);
+const tidePromise = new TidePromise(); 
+const tideButtonAction = async (promise: TidePromise) => heimdall.GetUserInfo(promise);
 
 const tideClick = async () => {
   tideButtonAction(tidePromise)
   tidePromise.promise.then((res: any) => {
     if (res.responseType == "completed") {
-      const jwt = res.TideJWT;
+      const jwt = res.UID; // not a jwt, its a uid. needs code update
       checkForJWT(jwt);
       initializeWallet(jwt, publicKey, generateMnemonic(128)).then(() => {
         router.push({ name: routes.walletReady.name });

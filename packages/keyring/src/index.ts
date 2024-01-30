@@ -68,7 +68,6 @@ class KeyRing {
       vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
       homeORKUrl: "https://prod-ork1.azurewebsites.net",
       enclaveRequest: {
-        getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
         refreshToken: true, // I want a TideJWT returned
         customModel: undefined, // I do not want to provide a customModel
       }
@@ -82,10 +81,10 @@ class KeyRing {
     const fieldData = new FieldData(["seedphrase"]);
     fieldData.add(mnemonic, ["seedphrase"]);
 
-    const params = [jwt, fieldData, tidePromise];
+    const params = [jwt, fieldData, tidePromise]; // this isn't a jwt here, its a uid
     
     const tideButtonAction = async (params) => {
-        return heimdall.TESTencryptUserDataTEST(params);
+        return heimdall.EncryptUserData(params);
     }
     tideButtonAction(params)
     const encrypted: Uint8Array[] = await tidePromise.promise;
@@ -149,7 +148,6 @@ class KeyRing {
       vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
       homeORKUrl: "https://prod-ork1.azurewebsites.net",
       enclaveRequest: {
-        getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
         refreshToken: true, // I want a TideJWT returned
         customModel: undefined, // I do not want to provide a customModel
       }
@@ -157,10 +155,10 @@ class KeyRing {
     const heimdall = new Heimdall(config);
     const tidePromise2 = new TidePromise();
 
-    const params = [jwt, encrypted, tidePromise2];
+    const params = [jwt, encrypted, tidePromise2]; // this isn't a jwt here, its a uid
     
     const tideButtonAction2 = async (params) => {
-        return heimdall.TESTdecryptUserDataTEST(params);
+        return heimdall.DecryptUserData(params);
     }
     tideButtonAction2(params)
     const decrypted = await tidePromise2.promise;
