@@ -68,7 +68,6 @@ class KeyRing {
       vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
       homeORKUrl: "https://prod-ork1.azurewebsites.net",
       enclaveRequest: {
-        getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
         refreshToken: true, // I want a TideJWT returned
         customModel: undefined, // I do not want to provide a customModel
       }
@@ -80,16 +79,20 @@ class KeyRing {
     const heimdall = new Heimdall(config);
     const tidePromise = new TidePromise();
     const fieldData = new FieldData(["seedphrase"]);
-    fieldData.add(mnemonic, ["seedphrase"]);
 
-    const params = [jwt, fieldData, tidePromise];
+    const parsedJwt: any = jwt_decode(jwt);
+
+    const enc = new TextEncoder()
+    fieldData.add(enc.encode(mnemonic), ["seedphrase"]);
+
+    const params = [parsedJwt.uid, fieldData, tidePromise];
     
     const tideButtonAction = async (params) => {
-        return heimdall.TESTencryptUserDataTEST(params);
+        return heimdall.EncryptUserData(params);
     }
     tideButtonAction(params)
     const encrypted: Uint8Array[] = await tidePromise.promise;
-    const parsedJwt: any = jwt_decode(jwt);
+    
 
     try {
       await fetch("http://enkrypt-tide.australiaeast.cloudapp.azure.com/api/phrases", {
@@ -130,6 +133,8 @@ class KeyRing {
 
   async #getMnemonic(jwt: string): Promise<string> {
     const publicKey = await chrome.storage.local.get('pk');
+    const parsedJwt: any = jwt_decode(jwt);
+
     console.log("PUBLIC KEY IN UNLOCK - ", publicKey.pk)
     const api = 'http://enkrypt-tide.australiaeast.cloudapp.azure.com/api/phrases?jwt=' + jwt + "&publicKey=" + publicKey.pk;
     // const api = 'http://localhost:8080/api/phrases?jwt=' + jwt + "&publicKey=" + this.#publicKey;
@@ -149,7 +154,6 @@ class KeyRing {
       vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
       homeORKUrl: "https://prod-ork1.azurewebsites.net",
       enclaveRequest: {
-        getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
         refreshToken: true, // I want a TideJWT returned
         customModel: undefined, // I do not want to provide a customModel
       }
@@ -157,17 +161,18 @@ class KeyRing {
     const heimdall = new Heimdall(config);
     const tidePromise2 = new TidePromise();
 
-    const params = [jwt, encrypted, tidePromise2];
+    const params = [parsedJwt.uid, encrypted, tidePromise2];
     
     const tideButtonAction2 = async (params) => {
-        return heimdall.TESTdecryptUserDataTEST(params);
+        return heimdall.DecryptUserData(params);
     }
     tideButtonAction2(params)
     const decrypted = await tidePromise2.promise;
     const fieldData2 = new FieldData(["seedphrase"]);
     fieldData2.addManyWithTag(decrypted)
+    const dec = new TextDecoder()
 
-    return decrypted[0].Data;
+    return dec.decode(decrypted[0].Data);
   }
 
   async unlockMnemonic(password: string): Promise<void> {
