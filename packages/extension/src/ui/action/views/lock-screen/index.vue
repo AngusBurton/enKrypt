@@ -43,15 +43,14 @@ const config = {
   vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
   homeORKUrl: "https://prod-ork1.azurewebsites.net",
   enclaveRequest: {
-    getUserInfoFirst: false, // 1 step process - we will not supply a customModel halfway through the process
-    refreshToken: true, // I want a TideJWT returned
+    refreshToken: false, // I want a TideJWT returned
     customModel: undefined, // I do not want to provide a customModel
   }
 };
 
 const heimdall = new Heimdall(config);
 const tidePromise = new TidePromise(); 
-const tideButtonAction = async (promise: TidePromise) => heimdall.GetCompleted(promise);
+const tideButtonAction = async (promise: TidePromise) => heimdall.GetUserInfo(promise);
 
 const unlockAction = async () => {
   isUnlocking.value = true;
@@ -60,7 +59,7 @@ const unlockAction = async () => {
   const unlockStatus = await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.unlock,
-      params: [values.TideJWT],
+      params: [values.UID],
     }),
   });
   if (unlockStatus.error) {
