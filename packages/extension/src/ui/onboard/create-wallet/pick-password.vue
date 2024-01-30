@@ -30,6 +30,8 @@ const config = {
   }
 };
 
+var publicKey = ""
+
 const router = useRouter();
 const heimdall = new Heimdall(config);
 const tidePromise = new TidePromise(); 
@@ -41,7 +43,7 @@ const tideClick = async () => {
     if (res.responseType == "completed") {
       const jwt = res.UID; // not a jwt, its a uid. needs code update
       checkForJWT(jwt);
-      initializeWallet(jwt, generateMnemonic(128)).then(() => {
+      initializeWallet(jwt, publicKey, generateMnemonic(128)).then(() => {
         router.push({ name: routes.walletReady.name });
       });
     }
