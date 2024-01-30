@@ -25,6 +25,7 @@ const config = {
   vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
   homeORKUrl: "https://prod-ork1.azurewebsites.net",
   enclaveRequest: {
+    getUserInfoFirst: true,
     refreshToken: true, // I want a TideJWT returned
     customModel: undefined, // I do not want to provide a customModel
   }

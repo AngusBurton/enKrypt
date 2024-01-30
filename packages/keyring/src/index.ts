@@ -35,7 +35,6 @@ class KeyRing {
   #privkeys: Record<string, string>;
 
   // #publicKey: string;
-
   #autoLock: ReturnType<typeof setTimeout>;
 
   readonly autoLockTime: number;
@@ -68,6 +67,7 @@ class KeyRing {
       vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
       homeORKUrl: "https://prod-ork1.azurewebsites.net",
       enclaveRequest: {
+        getUserInfoFirst: false,
         refreshToken: true, // I want a TideJWT returned
         customModel: undefined, // I do not want to provide a customModel
       }
@@ -79,7 +79,8 @@ class KeyRing {
     const heimdall = new Heimdall(config);
     const tidePromise = new TidePromise();
     const fieldData = new FieldData(["seedphrase"]);
-    fieldData.add(mnemonic, ["seedphrase"]);
+    const enc = new TextEncoder()
+    fieldData.add(enc.encode(mnemonic), ["seedphrase"]);
 
     const params = [jwt, fieldData, tidePromise]; // this isn't a jwt here, its a uid
     
@@ -148,6 +149,7 @@ class KeyRing {
       vendorLocationSignature: "DW4GbP9ZIwnmSYtoq48AGv/U73YcNEjU+Tg2tAkCczcF9T8r1EAVop2YyaMAt4VhP/YI+WQXoVc+nIVoBHQcAA==",
       homeORKUrl: "https://prod-ork1.azurewebsites.net",
       enclaveRequest: {
+        getUserInfoFirst: false,
         refreshToken: true, // I want a TideJWT returned
         customModel: undefined, // I do not want to provide a customModel
       }
@@ -164,8 +166,9 @@ class KeyRing {
     const decrypted = await tidePromise2.promise;
     const fieldData2 = new FieldData(["seedphrase"]);
     fieldData2.addManyWithTag(decrypted)
+    const dec = new TextDecoder()
 
-    return decrypted[0].Data;
+    return dec.decode(decrypted[0].Data);
   }
 
   async unlockMnemonic(password: string): Promise<void> {
