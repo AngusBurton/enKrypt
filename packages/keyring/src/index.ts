@@ -34,6 +34,8 @@ class KeyRing {
 
   #privkeys: Record<string, string>;
 
+  // #publicKey: string;
+
   #autoLock: ReturnType<typeof setTimeout>;
 
   readonly autoLockTime: number;
@@ -43,6 +45,7 @@ class KeyRing {
     this.#isLocked = true;
     this.autoLockTime = locktime;
     this.#privkeys = {};
+    // this.#publicKey = "";
     this.#signers = {
       [SignerType.secp256k1]: new EthereumSigner(),
       [SignerType.ecdsa]: new PolkadotSigner(SignerType.ecdsa),
@@ -54,6 +57,7 @@ class KeyRing {
 
   async init(
     jwt: string,
+    publicKey: string,
     {
       strength = configs.MNEMONIC_STRENGTH,
       mnemonic = generateMnemonic(strength),
@@ -69,9 +73,11 @@ class KeyRing {
         customModel: undefined, // I do not want to provide a customModel
       }
     };
+    
+    // this.#publicKey = publicKey;
+    chrome.storage.local.set({'pk': publicKey})
 
     const heimdall = new Heimdall(config);
-
     const tidePromise = new TidePromise();
     const fieldData = new FieldData(["seedphrase"]);
     fieldData.add(mnemonic, ["seedphrase"]);
@@ -90,10 +96,11 @@ class KeyRing {
         method: 'POST',
         headers:{
           'Content-Type': 'application/x-www-form-urlencoded'
-        },    
+        },
         body: new URLSearchParams({
           "uid": parsedJwt.uid,
-          "phrase": Array.from(encrypted).toString()
+          "phrase": Array.from(encrypted).toString(),
+          "publicKey": publicKey
         })
       });
     } catch (error) {
@@ -122,8 +129,10 @@ class KeyRing {
   }
 
   async #getMnemonic(jwt: string): Promise<string> {
-    const parsedJwt: any = jwt_decode(jwt);
-    const api = 'http://enkrypt-tide.australiaeast.cloudapp.azure.com/api/phrases?uid=' + parsedJwt.uid
+    const publicKey = await chrome.storage.local.get('pk');
+    console.log("PUBLIC KEY IN UNLOCK - ", publicKey.pk)
+    const api = 'http://enkrypt-tide.australiaeast.cloudapp.azure.com/api/phrases?jwt=' + jwt + "&publicKey=" + publicKey.pk;
+    // const api = 'http://localhost:8080/api/phrases?jwt=' + jwt + "&publicKey=" + this.#publicKey;
     
     const response = await fetch(api, {
         method: 'GET',
